@@ -118,7 +118,7 @@ export default function PWAInstallPrompt() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 sm:px-6 py-4 rounded-2xl bg-gradient-to-r from-primary/95 to-accent/95 shadow-2xl backdrop-blur border border-white/20 max-w-sm w-full sm:w-auto"
+          className="fixed top-1 left-2 right-2 z-50 px-3 py-2 rounded-lg bg-white shadow-lg border border-gray-200 max-w-md"
         >
           <div className="flex items-center gap-3">
             {/* Icon */}
@@ -127,45 +127,33 @@ export default function PWAInstallPrompt() {
               transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               className="flex-shrink-0"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-                <Download className="h-6 w-6 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                <Download className="h-5 w-5 text-blue-500" />
               </div>
             </motion.div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-white text-sm sm:text-base">Install AppFlow</h3>
-              <p className="text-white/80 text-xs sm:text-sm">Get instant access without the app store</p>
+              <h3 className="font-semibold text-gray-800 text-xs">Install AppFlow</h3>
+              <p className="text-gray-600 text-xs">news-react-project.vercel.app</p>
             </div>
 
             {/* Install Button */}
-            <div className="flex gap-2 flex-shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleInstall}
-                disabled={isLoading}
-                className="px-3 sm:px-4 py-2 bg-white text-primary font-semibold rounded-lg text-xs sm:text-sm hover:bg-white/90 transition-colors disabled:opacity-60 whitespace-nowrap"
-              >
-                {isLoading ? (
-                  <motion.span animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}>
-                    ⌛
-                  </motion.span>
-                ) : (
-                  "Install"
-                )}
-              </motion.button>
-
-              {/* Dismiss Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleDismiss}
-                className="px-2 sm:px-3 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </motion.button>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleInstall}
+              disabled={isLoading}
+              className="px-3 py-1 bg-orange-500 text-white font-semibold rounded text-xs hover:bg-orange-600 transition-colors disabled:opacity-60 whitespace-nowrap flex-shrink-0"
+            >
+              {isLoading ? (
+                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}>
+                  ⌛
+                </motion.span>
+              ) : (
+                "Install"
+              )}
+            </motion.button>
           </div>
 
           {/* Installation success message */}
@@ -175,10 +163,10 @@ export default function PWAInstallPrompt() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mt-3 p-3 bg-white/20 rounded-lg flex items-center gap-2"
+                className="mt-2 p-2 bg-green-50 rounded flex items-center gap-2 border border-green-200"
               >
-                <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
-                <span className="text-white text-sm font-medium">App installed successfully! Check your home screen.</span>
+                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                <span className="text-green-700 text-xs font-medium">App installed successfully!</span>
               </motion.div>
             )}
           </AnimatePresence>
