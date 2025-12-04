@@ -1,65 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Download, CheckCircle } from "lucide-react"
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
-}
 
 export default function InstallSection() {
   const [isLoading, setIsLoading] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [canInstall, setCanInstall] = useState(false)
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
-      setCanInstall(true)
-    }
-
-    const handleAppInstalled = () => {
-      setIsInstalled(true)
-      setCanInstall(false)
-      setDeferredPrompt(null)
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    window.addEventListener("appinstalled", handleAppInstalled)
-
-    // Check if app is already installed
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true)
-    }
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-      window.removeEventListener("appinstalled", handleAppInstalled)
-    }
-  }, [])
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return
-
     setIsLoading(true)
-    try {
-      deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+    setIsLoading(false)
+    setIsInstalled(true)
 
-      if (outcome === "accepted") {
-        setIsInstalled(true)
-      }
-      setCanInstall(false)
-      setDeferredPrompt(null)
-    } catch (error) {
-      console.error("Installation error:", error)
-    } finally {
-      setIsLoading(false)
-    }
+    setTimeout(() => {
+      setIsInstalled(false)
+    }, 3500)
   }
 
   return (
@@ -83,13 +40,13 @@ export default function InstallSection() {
           </p>
 
           <motion.div
-            whileHover={{ scale: canInstall ? 1.05 : 1 }}
-            whileTap={{ scale: canInstall ? 0.95 : 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleInstall}
             className="relative inline-block"
           >
             <button
-              disabled={isLoading || isInstalled || !canInstall}
+              disabled={isLoading || isInstalled}
               className="relative overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 sm:px-12 py-2 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-2xl transition-all disabled:opacity-60"
             >
               {/* Background glow effect */}
@@ -148,17 +105,6 @@ export default function InstallSection() {
           >
             ✓ App installed successfully! You can now access it from your home screen.
           </motion.p>
-
-          {!canInstall && !isInstalled && (
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="mt-4 text-xs sm:text-sm text-muted-foreground"
-            >
-              Install option will appear when the app is ready
-            </motion.p>
-          )}
         </motion.div>
       </div>
     </section>

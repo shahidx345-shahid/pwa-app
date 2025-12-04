@@ -1,46 +1,60 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 
-interface BeforeInstallPromptEvent extends Event {
+export interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
 }
 
-export function PWAInstallHandler() {
+interface PWAInstallHandlerContextValue {
+  isInstallable: boolean
+  handleInstall: () => Promise<void>
+  isLoading: boolean
+  installationComplete: boolean
+}
+
+import { createContext, ReactNode, useContext } from "react"
+
+export const PWAInstallContext = createContext<PWAInstallHandlerContextValue | undefined>(undefined)
+
+export function usePWAInstall() {
+  const context = useContext(PWAInstallContext)
+  if (context === undefined) {
+    throw new Error("usePWAInstall must be used within a PWAInstallProvider")
+  }
+  return context
+}
+
+interface PWAInstallProviderProps {
+  children: ReactNode
+}
+
+export function PWAInstallProvider({ children }: PWAInstallProviderProps) {
+  const [isInstallable, setIsInstallable] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showInstallBanner, setShowInstallBanner] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [installationComplete, setInstallationComplete] = useState(false)
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log("beforeinstallprompt event fired")
       e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
-      setShowInstallBanner(true)
-      console.log("✓ Install prompt available - showing banner")
+      const beforeInstallPromptEvent = e as BeforeInstallPromptEvent
+      setDeferredPrompt(beforeInstallPromptEvent)
+      setIsInstallable(true)
     }
 
     const handleAppInstalled = () => {
-      console.log("✓ App installed!")
-      setShowInstallBanner(false)
+      console.log("App installed successfully")
+      setIsInstallable(false)
       setDeferredPrompt(null)
+      setInstallationComplete(true)
+      setTimeout(() => setInstallationComplete(false), 3500)
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
     window.addEventListener("appinstalled", handleAppInstalled)
-
-    // Log manifest and service worker
-    fetch("/manifest.json")
-      .then((res) => res.ok ? res.json() : null)
-      .then((manifest) => {
-        if (manifest) console.log("✓ Manifest loaded:", manifest.name)
-      })
-      .catch(() => console.error("✗ Manifest failed"))
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        if (regs.length > 0) console.log("✓ Service Worker active")
-      })
-    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
@@ -48,35 +62,38 @@ export function PWAInstallHandler() {
     }
   }, [])
 
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return
-    
+  const handleInstall = useCallback(async () => {
+    if (!deferredPrompt) {
+      console.log("Install prompt not available")
+      return
+    }
+
+    setIsLoading(true)
     try {
       await deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
-      console.log(`Install: ${outcome}`)
-      setShowInstallBanner(false)
+      console.log(`User response to the install prompt: ${outcome}`)
+
+      if (outcome === "accepted") {
+        setInstallationComplete(true)
+        setTimeout(() => setInstallationComplete(false), 3500)
+      }
+
+      setDeferredPrompt(null)
+      setIsInstallable(false)
     } catch (error) {
-      console.error("Install error:", error)
+      console.error("Error during installation:", error)
+    } finally {
+      setIsLoading(false)
     }
+  }, [deferredPrompt])
+
+  const value: PWAInstallHandlerContextValue = {
+    isInstallable,
+    handleInstall,
+    isLoading,
+    installationComplete,
   }
 
-  if (!showInstallBanner || !deferredPrompt) return null
-
-  return (
-    <div className="fixed top-16 left-0 right-0 z-40 p-3 bg-blue-600 text-white">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-        <div>
-          <p className="font-semibold">Install AppFlow</p>
-          <p className="text-xs opacity-90">Add to your home screen</p>
-        </div>
-        <button
-          onClick={handleInstallClick}
-          className="px-4 py-2 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
-        >
-          Install
-        </button>
-      </div>
-    </div>
-  )
+  return <PWAInstallContext.Provider value={value}>{children}</PWAInstallContext.Provider>
 }

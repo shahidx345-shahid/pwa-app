@@ -82,6 +82,7 @@ const metadata = {
     formatDetection: {
         telephone: false
     },
+    manifest: "/manifest.json",
     generator: 'v0.app'
 };
 const viewport = {
@@ -99,12 +100,12 @@ function RootLayout({ children }) {
             children: children
         }, void 0, false, {
             fileName: "[project]/app/layout.tsx",
-            lineNumber: 38,
+            lineNumber: 39,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/layout.tsx",
-        lineNumber: 37,
+        lineNumber: 38,
         columnNumber: 5
     }, this);
 }
