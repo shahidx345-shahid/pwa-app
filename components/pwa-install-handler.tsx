@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -8,15 +8,19 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallHandler() {
-  useEffect(() => {
-    let deferredPrompt: BeforeInstallPromptEvent | null = null
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
 
+  useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      deferredPrompt = e as BeforeInstallPromptEvent
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
       console.log("✓ beforeinstallprompt event fired - Install prompt is available!")
-      
-      // Auto-show the prompt
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+
+    // Auto-trigger install prompt after short delay (user sees page = user gesture implied)
+    const timer = setTimeout(() => {
       if (deferredPrompt) {
         deferredPrompt.prompt().then(() => {
           console.log("✓ Install prompt shown to user")
@@ -24,19 +28,7 @@ export function PWAInstallHandler() {
           console.error("✗ Error showing install prompt:", error)
         })
       }
-      
-      // Listen for user response
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === "accepted") {
-          console.log("✓ User accepted the install prompt")
-        } else {
-          console.log("✗ User dismissed the install prompt")
-        }
-        deferredPrompt = null
-      })
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+    }, 2000)
 
     // Log manifest loading
     fetch("/manifest.json")
@@ -70,8 +62,9 @@ export function PWAInstallHandler() {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+      clearTimeout(timer)
     }
-  }, [])
+  }, [deferredPrompt])
 
   return null
 }

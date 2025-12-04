@@ -25,18 +25,26 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  // Don't cache non-GET requests
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Don't cache chrome-extension or other non-http(s) requests
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses
-        if (response && response.status === 200) {
+        // Only cache successful responses
+        if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            cache.put(event.request, responseToCache).catch((error) => {
+              console.warn('Cache put failed:', error);
+            });
           });
         }
         return response;
@@ -49,4 +57,5 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
 
