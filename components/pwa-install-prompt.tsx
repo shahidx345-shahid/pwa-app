@@ -10,14 +10,38 @@ export default function PWAInstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [isDismissed, setIsDismissed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
+      const isMobileDevice =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase()) ||
+        window.innerWidth <= 768
+      setIsMobile(isMobileDevice)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
     const handleBeforeInstallPrompt = (e: Event) => {
       console.log("beforeinstallprompt event fired - Install prompt available!")
       e.preventDefault()
       setDeferredPrompt(e)
-      setIsInstallable(true)
-      setIsDismissed(false)
+      
+      // Only show on mobile
+      if (isMobile) {
+        setIsInstallable(true)
+        setIsDismissed(false)
+        
+        // Auto-hide after 2 seconds
+        const timer = setTimeout(() => {
+          setIsInstallable(false)
+        }, 2000)
+        
+        return () => clearTimeout(timer)
+      }
     }
 
     const handleAppInstalled = () => {
@@ -40,8 +64,9 @@ export default function PWAInstallPrompt() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
       window.removeEventListener("appinstalled", handleAppInstalled)
+      window.removeEventListener("resize", checkMobile)
     }
-  }, [])
+  }, [isMobile])
 
   const handleInstall = async () => {
     if (!deferredPrompt) {
@@ -76,12 +101,12 @@ export default function PWAInstallPrompt() {
   }
 
   const handleDismiss = () => {
+    setIsInstallable(false)
     setIsDismissed(true)
-    // Can re-show after some time or user action
-    setTimeout(() => setIsDismissed(false), 30000) // 30 seconds
   }
 
-  if (!isInstallable || isDismissed) {
+  // Only show on mobile devices
+  if (!isInstallable || isDismissed || !isMobile) {
     return null
   }
 
