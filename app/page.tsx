@@ -10,8 +10,6 @@ import StatsSection from "@/components/stats-section"
 import TestimonialsSection from "@/components/testimonials-section"
 import Footer from "@/components/footer"
 import CTASection from "@/components/cta-section"
-import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
-import { BrowserHeaderInstallPrompt } from "@/components/browser-header-install-prompt"
 
 export default function Home() {
   const [isOnline, setIsOnline] = useState(true)
@@ -22,7 +20,6 @@ export default function Home() {
 
   return (
     <div className="w-full overflow-x-hidden bg-gradient-to-b from-background to-muted">
-      <BrowserHeaderInstallPrompt />
       <Navbar />
       <main className="w-full">
         <HeroSection />
@@ -34,7 +31,6 @@ export default function Home() {
       </main>
       <Footer />
       <OfflineIndicator onStatusChange={handleOnlineStatus} />
-      <PWAInstallPrompt />
     </div>
   )
 }
