@@ -10,6 +10,7 @@ import StatsSection from "@/components/stats-section"
 import TestimonialsSection from "@/components/testimonials-section"
 import Footer from "@/components/footer"
 import CTASection from "@/components/cta-section"
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 
 export default function Home() {
   const [isOnline, setIsOnline] = useState(true)
@@ -31,6 +32,7 @@ export default function Home() {
       </main>
       <Footer />
       <OfflineIndicator onStatusChange={handleOnlineStatus} />
+      <PWAInstallPrompt />
     </div>
   )
 }

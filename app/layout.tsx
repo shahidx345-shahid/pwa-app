@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -42,17 +43,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="AppFlow" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
-              }
-            `,
-          }}
-        />
       </head>
-      <body className={`font-sans antialiased`}>{children}</body>
+      <body className={`font-sans antialiased`}>
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
     </html>
   )
 }
