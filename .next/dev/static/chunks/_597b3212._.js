@@ -560,14 +560,54 @@ function InstallSection() {
     _s();
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isInstalled, setIsInstalled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [deferredPrompt, setDeferredPrompt] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [canInstall, setCanInstall] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "InstallSection.useEffect": ()=>{
+            const handleBeforeInstallPrompt = {
+                "InstallSection.useEffect.handleBeforeInstallPrompt": (e)=>{
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                    setCanInstall(true);
+                }
+            }["InstallSection.useEffect.handleBeforeInstallPrompt"];
+            const handleAppInstalled = {
+                "InstallSection.useEffect.handleAppInstalled": ()=>{
+                    setIsInstalled(true);
+                    setCanInstall(false);
+                    setDeferredPrompt(null);
+                }
+            }["InstallSection.useEffect.handleAppInstalled"];
+            window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+            window.addEventListener("appinstalled", handleAppInstalled);
+            // Check if app is already installed
+            if (window.matchMedia("(display-mode: standalone)").matches) {
+                setIsInstalled(true);
+            }
+            return ({
+                "InstallSection.useEffect": ()=>{
+                    window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+                    window.removeEventListener("appinstalled", handleAppInstalled);
+                }
+            })["InstallSection.useEffect"];
+        }
+    }["InstallSection.useEffect"], []);
     const handleInstall = async ()=>{
+        if (!deferredPrompt) return;
         setIsLoading(true);
-        await new Promise((resolve)=>setTimeout(resolve, 2500));
-        setIsLoading(false);
-        setIsInstalled(true);
-        setTimeout(()=>{
-            setIsInstalled(false);
-        }, 3500);
+        try {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === "accepted") {
+                setIsInstalled(true);
+            }
+            setCanInstall(false);
+            setDeferredPrompt(null);
+        } catch (error) {
+            console.error("Installation error:", error);
+        } finally{
+            setIsLoading(false);
+        }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         id: "install",
@@ -608,7 +648,7 @@ function InstallSection() {
                         children: "Install AppFlow Today"
                     }, void 0, false, {
                         fileName: "[project]/components/install-section.tsx",
-                        lineNumber: 31,
+                        lineNumber: 74,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -616,20 +656,20 @@ function InstallSection() {
                         children: "Get instant access to our app without the app store hassle"
                     }, void 0, false, {
                         fileName: "[project]/components/install-section.tsx",
-                        lineNumber: 38,
+                        lineNumber: 81,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
                         whileHover: {
-                            scale: 1.05
+                            scale: canInstall ? 1.05 : 1
                         },
                         whileTap: {
-                            scale: 0.95
+                            scale: canInstall ? 0.95 : 1
                         },
                         onClick: handleInstall,
                         className: "relative inline-block",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            disabled: isLoading || isInstalled,
+                            disabled: isLoading || isInstalled || !canInstall,
                             className: "relative overflow-hidden rounded-full bg-gradient-to-r from-primary to-accent px-6 sm:px-12 py-2 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-2xl transition-all disabled:opacity-60",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -649,7 +689,7 @@ function InstallSection() {
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/components/install-section.tsx",
-                                    lineNumber: 53,
+                                    lineNumber: 96,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -672,12 +712,12 @@ function InstallSection() {
                                         className: "h-4 w-4 border-2 border-white border-t-transparent rounded-full"
                                     }, void 0, false, {
                                         fileName: "[project]/components/install-section.tsx",
-                                        lineNumber: 65,
+                                        lineNumber: 108,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/install-section.tsx",
-                                    lineNumber: 60,
+                                    lineNumber: 103,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -707,7 +747,7 @@ function InstallSection() {
                                                     className: "h-4 w-4 sm:h-5 sm:w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 84,
+                                                    lineNumber: 127,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -715,7 +755,7 @@ function InstallSection() {
                                                     children: "Installation Complete!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 85,
+                                                    lineNumber: 128,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -723,7 +763,7 @@ function InstallSection() {
                                                     children: "Installed!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 86,
+                                                    lineNumber: 129,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
@@ -733,7 +773,7 @@ function InstallSection() {
                                                     className: "h-4 w-4 sm:h-5 sm:w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 90,
+                                                    lineNumber: 133,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -741,7 +781,7 @@ function InstallSection() {
                                                     children: "Install AppFlow"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 91,
+                                                    lineNumber: 134,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -749,30 +789,30 @@ function InstallSection() {
                                                     children: "Install"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/install-section.tsx",
-                                                    lineNumber: 92,
+                                                    lineNumber: 135,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/components/install-section.tsx",
-                                        lineNumber: 78,
+                                        lineNumber: 121,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/install-section.tsx",
-                                    lineNumber: 73,
+                                    lineNumber: 116,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/install-section.tsx",
-                            lineNumber: 48,
+                            lineNumber: 91,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/install-section.tsx",
-                        lineNumber: 42,
+                        lineNumber: 85,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].p, {
@@ -791,27 +831,46 @@ function InstallSection() {
                         children: "✓ App installed successfully! You can now access it from your home screen."
                     }, void 0, false, {
                         fileName: "[project]/components/install-section.tsx",
-                        lineNumber: 100,
+                        lineNumber: 143,
                         columnNumber: 11
+                    }, this),
+                    !canInstall && !isInstalled && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].p, {
+                        initial: {
+                            opacity: 0,
+                            y: 10
+                        },
+                        animate: {
+                            opacity: 1,
+                            y: 0
+                        },
+                        transition: {
+                            duration: 0.4
+                        },
+                        className: "mt-4 text-xs sm:text-sm text-muted-foreground",
+                        children: "Install option will appear when the app is ready"
+                    }, void 0, false, {
+                        fileName: "[project]/components/install-section.tsx",
+                        lineNumber: 153,
+                        columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/install-section.tsx",
-                lineNumber: 25,
+                lineNumber: 68,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/install-section.tsx",
-            lineNumber: 24,
+            lineNumber: 67,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/install-section.tsx",
-        lineNumber: 23,
+        lineNumber: 66,
         columnNumber: 5
     }, this);
 }
-_s(InstallSection, "ghBtRMmPyQXki51/paQMe/TMmW0=");
+_s(InstallSection, "NBTwvUOT4Z/ES84jhG/sqvp6j6A=");
 _c = InstallSection;
 var _c;
 __turbopack_context__.k.register(_c, "InstallSection");

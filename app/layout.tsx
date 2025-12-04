@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration"
+import { PWAInstallHandler } from "@/components/pwa-install-handler"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         {children}
         <ServiceWorkerRegistration />
+        <PWAInstallHandler />
       </body>
     </html>
   )
