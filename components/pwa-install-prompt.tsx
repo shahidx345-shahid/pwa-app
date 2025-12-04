@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { X, Download } from "lucide-react"
-import { Button } from "./ui/button"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -81,47 +80,34 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl animate-in fade-in zoom-in-95 duration-300">
-        {/* Close Button */}
-        <button
-          onClick={handleDismiss}
-          className="absolute top-4 right-4 p-1 hover:bg-muted rounded-lg transition-colors"
-        >
-          <X className="h-5 w-5 text-muted-foreground" />
-        </button>
-
-        {/* Content */}
-        <div className="flex flex-col items-center gap-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-3 animate-in slide-in-from-bottom-5 duration-300">
+      <div className="mx-auto max-w-sm rounded-lg bg-white shadow-lg border border-gray-200">
+        <div className="flex items-center gap-3 p-3">
           {/* Icon */}
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
-            <Download className="h-8 w-8 text-white" />
+          <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600">
+            <Download className="h-5 w-5 text-white" />
           </div>
 
           {/* Text */}
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-foreground mb-2">Install AppFlow</h2>
-            <p className="text-sm text-muted-foreground">
-              Get instant access to our app with offline capabilities and lightning-fast performance. Install directly to your home screen!
-            </p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-900">Install AppFlow</p>
+            <p className="text-xs text-gray-600">Add to your home screen</p>
           </div>
 
           {/* Buttons */}
-          <div className="w-full flex flex-col gap-3 pt-4">
-            <Button
+          <div className="flex gap-2 flex-shrink-0">
+            <button
               onClick={handleInstall}
-              className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700 transition-colors"
             >
-              <Download className="h-4 w-4" />
-              Install Now
-            </Button>
-            <Button
+              Install
+            </button>
+            <button
               onClick={handleDismiss}
-              variant="outline"
-              className="w-full"
+              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Maybe Later
-            </Button>
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
