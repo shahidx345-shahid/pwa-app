@@ -19,7 +19,11 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  generator: 'v0.app'
+  generator: 'v0.app',
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  }
 }
 
 export const viewport: Viewport = {
