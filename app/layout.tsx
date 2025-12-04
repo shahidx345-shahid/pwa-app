@@ -9,6 +9,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "AppFlow - Progressive Web App",
   description: "Experience the future of web apps with offline capabilities and seamless performance",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
@@ -35,6 +36,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="AppFlow" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+              }
+            `,
+          }}
+        />
+      </head>
       <body className={`font-sans antialiased`}>{children}</body>
     </html>
   )
